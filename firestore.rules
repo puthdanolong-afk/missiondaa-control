@@ -1,0 +1,159 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: officials
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required)
+    //   - gender: string (optional, enum: ["M", "F", "Other"])
+    //   - position: string (required)
+    //   - group: string (required)
+    //   - order: number (optional)
+    //
+    // Collection: missions
+    // Document ID: auto-generated
+    // Fields:
+    //   - officialId: string (required)
+    //   - month: number (required, 1-12)
+    //   - year: number (required)
+    //   - days: list (required, items: number 1-31)
+    //
+    // Collection: groups
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required)
+    //   - description: string (optional)
+    //
+    // Collection: committees
+    // Document ID: auto-generated
+    // Fields:
+    //   - leaderName: string (required) - ឈ្មោះថ្នាក់ដឹកនាំ
+    //   - leaderPosition: string (required) - តួនាទី
+    //   - documentNumber: string (optional) - លេខលិខិត
+    //   - objective: string (required) - កម្មវត្ថុ
+    //   - ministry: string (optional) - ក្រសួង
+    //   - fileUrl: string (optional) - ឯកសារ
+    //   - notes: string (optional) - ផ្សេងៗ
+    //   - order: number (optional)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "lasediii.info@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isEditor() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'editor'] ||
+          (request.auth.token.email == "lasediii.info@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['admin', 'editor', 'viewer'];
+    }
+
+    function isValidOfficial(data) {
+      return data.keys().hasAll(['name', 'position', 'group']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.position is string && data.position.size() > 0 && data.position.size() < 100 &&
+             data.group is string && data.group.size() > 0 && data.group.size() < 100 &&
+             (!('gender' in data) || (data.gender in ['M', 'F', 'Other'])) &&
+             (!('order' in data) || (data.order is number));
+    }
+
+    function isValidMission(data) {
+      return data.keys().hasAll(['officialId', 'month', 'year', 'days']) &&
+             data.officialId is string &&
+             data.month is number && data.month >= 1 && data.month <= 12 &&
+             data.year is number &&
+             data.days is list && data.days.size() <= 31 &&
+             (!('notes' in data) || (data.notes is map && data.notes.size() <= 31));
+    }
+
+    function isValidGroup(data) {
+      return data.keys().hasAll(['name']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             (!('description' in data) || (data.description is string && data.description.size() < 500));
+    }
+
+    function isValidCommittee(data) {
+      return data.keys().hasAll(['leaderName', 'leaderPosition', 'objective']) &&
+             data.leaderName is string && data.leaderName.size() > 0 && data.leaderName.size() < 200 &&
+             data.leaderPosition is string && data.leaderPosition.size() > 0 && data.leaderPosition.size() < 200 &&
+             data.objective is string && data.objective.size() > 0 && data.objective.size() < 1000 &&
+             (!('documentNumber' in data) || (data.documentNumber is string && data.documentNumber.size() < 200)) &&
+             (!('ministry' in data) || (data.ministry is string && data.ministry.size() < 500)) &&
+             (!('fileUrl' in data) || (data.fileUrl is string && data.fileUrl.size() < 1000)) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() < 2000)) &&
+             (!('order' in data) || (data.order is number)) &&
+             (!('createdAt' in data) || (data.createdAt is string));
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAuthenticated() && (request.auth.uid == userId || isAdmin()) && isValidUser(request.resource.data);
+      allow update: if isAdmin() && isValidUser(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /officials/{officialId} {
+      allow read: if isAuthenticated();
+      allow write: if isEditor();
+    }
+
+    match /missions/{missionId} {
+      allow read: if isAuthenticated();
+      allow write: if isEditor();
+    }
+
+    match /groups/{groupId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin() && isValidGroup(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /committees/{committeeId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isEditor() && isValidCommittee(request.resource.data);
+      allow delete: if isEditor();
+    }
+
+    match /files/{fileId} {
+      allow read: if isAuthenticated();
+      allow create: if isEditor();
+      allow update, delete: if isEditor();
+    }
+
+    match /file_chunks/{chunkId} {
+      allow read: if isAuthenticated();
+      allow create: if isEditor() && 
+                      request.resource.data.data is string &&
+                      request.resource.data.data.size() < 1048576; // Limit each chunk to ~1MB
+      allow update, delete: if isEditor();
+    }
+
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}
