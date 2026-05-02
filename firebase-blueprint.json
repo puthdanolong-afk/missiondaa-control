@@ -1,0 +1,276 @@
+{
+  "entities": {
+    "Official": {
+      "title": "Official",
+      "description": "An official or leader in the department.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The full name of the official."
+        },
+        "gender": {
+          "type": "string",
+          "enum": ["M", "F", "Other"],
+          "description": "The gender of the official."
+        },
+        "position": {
+          "type": "string",
+          "description": "The job title or position of the official."
+        },
+        "group": {
+          "type": "string",
+          "description": "The group or department section (e.g., 'Leadership', 'General Affairs')."
+        },
+        "groupDescription": {
+          "type": "string",
+          "description": "A detailed description of the official's group or department."
+        },
+        "order": {
+          "type": "number",
+          "description": "The display order of the official."
+        }
+      },
+      "required": ["name", "position", "group"]
+    },
+    "Mission": {
+      "title": "Mission",
+      "description": "A mission record for an official for a specific month.",
+      "type": "object",
+      "properties": {
+        "officialId": {
+          "type": "string",
+          "description": "The ID of the official."
+        },
+        "month": {
+          "type": "number",
+          "description": "The month (1-12)."
+        },
+        "year": {
+          "type": "number",
+          "description": "The year (e.g., 2026)."
+        },
+        "days": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "An array of days (1-31) when the official was on mission."
+        },
+        "notes": {
+          "type": "object",
+          "description": "A map of day numbers to notes (e.g., { '5': 'Meeting in Battambang' })."
+        }
+      },
+      "required": ["officialId", "month", "year", "days"]
+    },
+    "User": {
+      "title": "User",
+      "description": "A user of the application.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The unique ID of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email of the user."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The display name of the user."
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "The photo URL of the user."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "editor", "viewer"],
+          "description": "The role of the user."
+        }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Group": {
+      "title": "Group",
+      "description": "A category or group of officials.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the group."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the group."
+        }
+      },
+      "required": ["name"]
+    },
+    "Committee": {
+      "title": "Committee",
+      "description": "A committee or working group assignment.",
+      "type": "object",
+      "properties": {
+        "leaderName": {
+          "type": "string",
+          "description": "The name of the leader (ឈ្មោះថ្នាក់ដឹកនាំ)."
+        },
+        "leaderPosition": {
+          "type": "string",
+          "description": "The position of the leader (តួនាទី)."
+        },
+        "documentNumber": {
+          "type": "string",
+          "description": "The Letter or Decision number (លេខលិខិត)."
+        },
+        "objective": {
+          "type": "string",
+          "description": "The objective or subject (កម្មវត្ថុ)."
+        },
+        "ministry": {
+          "type": "string",
+          "description": "The ministry or institution (ក្រសួង)."
+        },
+        "fileUrl": {
+          "type": "string",
+          "description": "The URL to the document file (ឯកសារ)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Other notes or details (ផ្សេងៗ)."
+        },
+        "order": {
+          "type": "number",
+          "description": "The display order."
+        }
+      },
+      "required": ["leaderName", "leaderPosition", "objective"]
+    },
+    "FileStorage": {
+      "title": "FileStorage",
+      "description": "Storage for files in Firestore (fallback for Storage).",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The original name of the file."
+        },
+        "type": {
+          "type": "string",
+          "description": "The MIME type of the file."
+        },
+        "data": {
+          "type": "string",
+          "description": "The base64 encoded data of the file (if small enough for one doc)."
+        },
+        "size": {
+          "type": "number",
+          "description": "The size of the file in bytes."
+        },
+        "totalChunks": {
+          "type": "number",
+          "description": "The total number of chunks (if stored across multiple docs)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "The timestamp when the file was uploaded."
+        }
+      },
+      "required": ["name", "type"]
+    },
+    "FileChunk": {
+      "title": "FileChunk",
+      "description": "A chunk of a file stored in Firestore.",
+      "type": "object",
+      "properties": {
+        "fileId": {
+          "type": "string",
+          "description": "The ID of the parent FileStorage document."
+        },
+        "chunkIndex": {
+          "type": "number",
+          "description": "The index of this chunk (0-based)."
+        },
+        "data": {
+          "type": "string",
+          "description": "The base64 encoded data for this chunk."
+        }
+      },
+      "required": ["fileId", "chunkIndex", "data"]
+    },
+    "TaskTracking": {
+      "title": "TaskTracking",
+      "description": "A task for work tracking.",
+      "type": "object",
+      "properties": {
+        "activity": {
+          "type": "string",
+          "description": "The activity or task name (សកម្មភាព)."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["⚠️ មិនទាន់ចាប់ផ្តើម", "✅ បញ្ចប់រួចរាល់", "🏃 កំពុងដំណើរការ", "❌ ផ្អាក"],
+          "description": "The current status (ស្ថានភាព)."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The start date (ថ្ងៃចាប់ផ្តើម)."
+        },
+        "deadline": {
+          "type": "string",
+          "description": "The deadline date (ថ្ងៃផុតកំណត់)."
+        },
+        "responsiblePerson": {
+          "type": "string",
+          "description": "The person responsible (អ្នកទទួលខុសត្រូវ)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Other notes or details (ផ្សេងៗ)."
+        },
+        "order": {
+          "type": "number",
+          "description": "The display order."
+        }
+      },
+      "required": ["activity", "status"]
+    }
+  },
+  "firestore": {
+    "/officials/{officialId}": {
+      "schema": "Official",
+      "description": "Collection of officials."
+    },
+    "/missions/{missionId}": {
+      "schema": "Mission",
+      "description": "Collection of mission records."
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of user profiles and roles."
+    },
+    "/groups/{groupId}": {
+      "schema": "Group",
+      "description": "Collection of groups."
+    },
+    "/committees/{committeeId}": {
+      "schema": "Committee",
+      "description": "Collection of committee assignments."
+    },
+    "/tasks/{taskId}": {
+      "schema": "TaskTracking",
+      "description": "Collection of tasks for work tracking."
+    },
+    "/files/{fileId}": {
+      "schema": "FileStorage",
+      "description": "Collection of files stored as base64 metadata."
+    },
+    "/file_chunks/{chunkId}": {
+      "schema": "FileChunk",
+      "description": "Collection of file data chunks."
+    }
+  }
+}

@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Freehand&family=Moul&family=Battambang:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Battambang", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-brand: var(--brand-color, #2563eb);
+  --color-brand-light: var(--brand-light-color, #eff6ff);
+  --color-brand-hover: var(--brand-hover-color, #1d4ed8);
+  --color-brand-shadow: var(--brand-shadow-color, #dbeafe);
+}
+
+/* Enable class-based dark mode for Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --brand-color: #2563eb;
+  --brand-light-color: #eff6ff;
+  --brand-hover-color: #1d4ed8;
+  --brand-shadow-color: #dbeafe;
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+  --brand-light-color: rgba(37, 99, 235, 0.1);
+}
+
+[data-theme="slate"] {
+  --brand-color: #0f172a;
+  --brand-light-color: #f1f5f9;
+  --brand-hover-color: #020617;
+  --brand-shadow-color: #e2e8f0;
+}
+
+.dark[data-theme="slate"] {
+  --brand-light-color: rgba(15, 23, 42, 0.2);
+}
+
+[data-theme="emerald"] {
+  --brand-color: #059669;
+  --brand-light-color: #ecfdf5;
+  --brand-hover-color: #047857;
+  --brand-shadow-color: #d1fae5;
+}
+
+.dark[data-theme="emerald"] {
+  --brand-light-color: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="indigo"] {
+  --brand-color: #4f46e5;
+  --brand-light-color: #eef2ff;
+  --brand-hover-color: #4338ca;
+  --brand-shadow-color: #e0e7ff;
+}
+
+.dark[data-theme="indigo"] {
+  --brand-light-color: rgba(79, 70, 229, 0.2);
+}
+
+[data-theme="rose"] {
+  --brand-color: #e11d48;
+  --brand-light-color: #fff1f2;
+  --brand-hover-color: #be123c;
+  --brand-shadow-color: #ffe4e6;
+}
+
+.dark[data-theme="rose"] {
+  --brand-light-color: rgba(225, 29, 72, 0.2);
+}
+
+body {
+  font-family: "Battambang", "Inter", sans-serif;
+}
+
+.quill-editor-container .ql-container {
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+  border-color: #e5e7eb !important;
+}
+
+.dark .quill-editor-container .ql-container {
+  border-color: #374151 !important;
+  background-color: #111827;
+  color: white;
+}
+
+.quill-editor-container .ql-toolbar {
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+  border-color: #e5e7eb !important;
+  background-color: #f9fafb;
+}
+
+.dark .quill-editor-container .ql-toolbar {
+  border-color: #374151 !important;
+  background-color: #1f2937;
+}
+
+.dark .quill-editor-container .ql-toolbar .ql-stroke {
+  stroke: #9ca3af;
+}
+
+.dark .quill-editor-container .ql-toolbar .ql-fill {
+  fill: #9ca3af;
+}
+
+.dark .quill-editor-container .ql-toolbar .ql-picker {
+  color: #9ca3af;
+}
+
+.quill-editor-container .ql-editor {
+  min-height: 120px;
+  font-family: inherit;
+}
+
+.quill-editor-container.bulk-editor .ql-container {
+  min-height: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.quill-editor-container.bulk-editor .ql-editor {
+  min-height: 200px;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
